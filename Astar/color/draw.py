@@ -2,7 +2,6 @@ import heapq
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-import time  # 导入时间模块用于计算算法运行时间
 
 # 定义地图，0表示通路，1表示墙壁
 n = 20  # 地图的大小 n x n
@@ -102,8 +101,6 @@ def a_star_search(start, goal):
     came_from[start] = None  # 起点没有前驱节点
     cost_so_far[start] = 0  # 起点的代价为 0
 
-    node_count = 1  # 统计生成的节点数，初始为1（起点）
-
     while frontier:
         _, _, current = heapq.heappop(frontier)  # 从优先队列中取出代价最小的节点
 
@@ -120,14 +117,13 @@ def a_star_search(start, goal):
                 # 在优先队列中加入 (f(n), h(n), neighbor)，以便在 f(n) 相同时比较 h(n)
                 heapq.heappush(frontier, (priority, h_value, neighbor))
                 came_from[neighbor] = current  # 记录邻居节点的前驱节点
-                node_count += 1  # 增加生成的节点数
                 # 更新颜色为蓝色，表示已访问
                 if neighbor != goal and neighbor != start:
                     color_map[neighbor[0]][neighbor[1]] = 'blue'
         # 绘制当前状态
         draw_grid()
 
-    return came_from, node_count  # 返回节点的前驱关系和生成的节点数
+    return came_from  # 返回节点的前驱关系
 
 # 重建从起点到终点的路径
 def reconstruct_path(came_from, start, goal):
@@ -143,15 +139,8 @@ def reconstruct_path(came_from, start, goal):
     path.reverse()  # 反转路径，使其从起点到终点
     return path  # 返回完整路径
 
-# 记录算法开始时间
-start_time = time.time()
-
 # 运行 A* 算法
-came_from, node_count = a_star_search(start, goal)
-
-# 计算算法运行时间
-end_time = time.time()
-elapsed_time = end_time - start_time  # 计算运行时间
+came_from = a_star_search(start, goal)
 
 # 绘制最终路径
 path = reconstruct_path(came_from, start, goal)
@@ -159,16 +148,8 @@ if path:
     for node in path:
         if node != start and node != goal:
             color_map[node[0]][node[1]] = 'yellow'  # 路径用黄色表示
-    # 打印最短路径
-    print("最短路径：")
-    print(path)
-    print(f"路径长度：{len(path)}")
 else:
     print("无法到达终点")
-
-# 打印生成的节点数和算法运行时间
-print(f"生成的节点总数：{node_count}")
-print(f"算法运行时间：{elapsed_time:.6f} 秒")
 
 draw_grid()  # 绘制最终的网格
 plt.ioff()  # 关闭交互模式
